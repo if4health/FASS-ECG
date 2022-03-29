@@ -31,7 +31,8 @@ app.use(bp.json())
   .use(patientRouter)
   .use(observationRouter)
 
+const PORT = process.env.PORT || 3000;
 
-app.listen(process.env.SERVER_PORT || 3000, () => {
-  console.log("server started" + process.env.SERVER_PORT)
+app.listen(PORT, () => {
+  console.log("server started: " + PORT)
 })
