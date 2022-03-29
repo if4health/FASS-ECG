@@ -32,6 +32,6 @@ app.use(bp.json())
   .use(observationRouter)
 
 
-app.listen(process.env.SERVER_PORT, () => {
+app.listen(process.env.SERVER_PORT || 3000, () => {
   console.log("server started" + process.env.SERVER_PORT)
 })
