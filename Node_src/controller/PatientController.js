@@ -1,29 +1,21 @@
 const PatientSchema = require('../model/patient/Patient.js');
+const PatientService = require('../service/PatientService');
 
 class PatientController {
 
     async createPatient(req, res) {
-        try {
-            let patient = req.body;
-            const result = await PatientSchema.create(patient);
-            return res.status(201).json(result);
-        } catch (error) {
-            console.log(error);
-        }
+        const result = await PatientService.createPatient(req.body);
+        res.json(result);
     }
 
     async getPatientById(req, res) {
-        try {
-            const result = await PatientSchema.findById(req.params.id).exec();
-            console.log(result)
-            if (result == null) {
-                return res.status(404).json("Patient not found");
-            }
-            return res.json(result);
-        } catch (error) {
-            return res.status(404).json("Patient not found");
-        }
+        const result = await PatientService.getPatientById(req.params.id);
+        if (result == null)
+            res.status(404).send({message: `Patient not found`})
+        else
+            res.json(result);
     }
+
 }
 
 module.exports = new PatientController();
