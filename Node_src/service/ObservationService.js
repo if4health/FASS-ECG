@@ -31,12 +31,20 @@ class ObservationService {
     }
 
     async patchComponent(component, id) {
+        console.log("component");
+        console.log(component);
         try {
             const observation = await ObservationSchema.findById(id).exec();
             if (observation == null) {
                 return "Observation not found";
             }
-            observation.component = [...observation.component, ...component];
+
+            if(observation.component === undefined){
+                observation.component = [...component];
+            }else{
+                observation.component = [...observation.component, ...component];
+            }
+
             const updated = await ObservationSchema.updateOne({_id: id}, observation)
             if (updated.nModified == 1) {
                 return observation;
