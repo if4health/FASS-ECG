@@ -30,6 +30,25 @@ class ObservationService {
         }
     }
 
+    async patchComponent(component, id) {
+        try {
+            const observation = await ObservationSchema.findById(id).exec();
+            if (observation == null) {
+                return "Observation not found";
+            }
+            observation.component = [...observation.component, ...component];
+            const updated = await ObservationSchema.updateOne({_id: id}, observation)
+            if (updated.nModified == 1) {
+                return observation;
+            } else
+                return "Não atualizado";
+        } catch (error) {
+            console.log(error)
+            return error;
+        }
+
+    }
+
     async getObservationById(id) {
         try {
             const result = await ObservationSchema.findById(id).exec();
