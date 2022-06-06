@@ -31,8 +31,6 @@ class ObservationService {
     }
 
     async patchComponent(component, id) {
-        console.log("component");
-        console.log(component);
         try {
             const observation = await ObservationSchema.findById(id).exec();
             if (observation == null) {
