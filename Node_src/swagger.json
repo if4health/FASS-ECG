@@ -1,238 +1,242 @@
 {
-    "swagger": "2.0",
-    "info": {
-        "version": "1.0.0",
-        "title": "CloudECG API",
-        "description": "API para persistência de ECG's na nuvem"
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "CloudECG API",
+    "description": "API para persistência de ECG's na nuvem"
+  },
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "Observation",
+      "description": "API para ecg observation"
     },
-    "basePath": "/",
-    "tags": [
-        {
+    {
+      "name": "Patient",
+      "description": "API para patient resource"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/baseR4/Observation": {
+      "post": {
+        "tags": [
+          "Observation"
+        ],
+        "summary": "Cria ECG Resource",
+        "description": "Cira um novo ECG resource",
+        "parameters": [
+          {
             "name": "Observation",
-            "description": "API para ecg observation"
-        },
-        {
-            "name": "Patient",
-            "description": "API para patient resource"
+            "in": "body",
+            "description": "ECG resource request",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Novo ECG Resource Criado",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          }
         }
-    ],
-    "schemes": [
-        "http"
-    ],
-    "consumes": [
-        "application/json"
-    ],
-    "produces": [
-        "application/json"
-    ],
-    "paths": {
-        "/baseR4/Observation": {
-            "post": {
-                "tags": [
-                    "Observation"
-                ],
-                "summary": "Cria ECG Resource",
-                "description": "Cira um novo ECG resource",
-                "parameters": [
-                    {
-                        "name": "Observation",
-                        "in": "body",
-                        "description": "ECG resource request",
-                        "schema": {
-                            "$ref": "#/definitions/Observation"
-                        }
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Novo ECG Resource Criado",
-                        "schema": {
-                            "$ref": "#/definitions/Observation"
-                        }
-                    }
-                }
-            }
-        },
-        "/baseR4/Observation/{id}": {
-            "parameters": [
-                {
-                    "name": "id",
-                    "in": "path",
-                    "required": true,
-                    "description": "ID ECG Resource",
-                    "type": "string"
-                }
-            ],
-            "get": {
-                "summary": "Busca ECG Resource por ID",
-                "tags": [
-                    "Observation"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Observation",
-                        "schema": {
-                            "$ref": "#/definitions/Observation"
-                        }
-                    },
-                    "404": {
-                        "description": "Observation not found"
-                    }
-                }
-            },
-            "patch": {
-                "summary": "Atualiza campo Component de um ECG Resource",
-                "tags": [
-                    "Observation"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "description": "ID ECG Resource",
-                        "type": "string"
-                    },
-                    {
-                        "name": "ComponentUpdate",
-                        "in": "body",
-                        "description": "Component request",
-                        "schema": {
-                            "$ref": "#/definitions/ComponentUpdate"
-                        }
-                    }
-                ],
-                "responses": [
-                    {
-                        "200": {
-                            "description": "User is updated",
-                            "schema": {
-                                "$ref": "#/definitions/User"
-                            }
-                        },
-                        "404": {
-                            "description": "Not found"
-                        }
-                    }
-                ]
-            }
-        },
-        "/baseR4/Patient":{
-            "post": {
-                "tags": [
-                    "Patient"
-                ],
-                "summary": "Cria um novo Patient Resource",
-                "description": "Cria um novo Patient Resource",
-                "parameters": [
-                    {
-                        "name": "Patient",
-                        "in": "body",
-                        "description": "Patient Resource Request",
-                        "schema": {
-                            "$ref": "#/definitions/Patient"
-                        }
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Novo Patient Criado",
-                        "schema": {
-                            "$ref": "#/definitions/Patient"
-                        }
-                    }
-                }
-            }
-        },
-        "/baseR4/Patient/{id}": {
-            "parameters": [
-                {
-                    "name": "id",
-                    "in": "path",
-                    "required": true,
-                    "description": "ID Patient Resource",
-                    "type": "string"
-                }
-            ],
-            "get": {
-                "summary": "Busca Patient por ID",
-                "tags": [
-                    "Patient"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Patient",
-                        "schema": {
-                            "$ref": "#/definitions/Patient"
-                        }
-                    },
-                    "404": {
-                        "description": "Patient not found"
-                    }
-                }
-            }
-        }
+      }
     },
-    "definitions": {
-        "Observation": {
-            "required": [
-                "resourceType"
-            ],
-            "properties": {
-                "resourceType": {
-                    "type": "string"
-                }
+    "/baseR4/Observation/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "ID ECG Resource",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Busca ECG Resource por ID",
+        "tags": [
+          "Observation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Observation",
+            "schema": {
+              "$ref": "#/definitions/Observation"
             }
-        },
-        "ComponentUpdate": {
-            "type": "array",
-            "items": {
+          },
+          "404": {
+            "description": "Observation not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Atualiza campo Component de um ECG Resource",
+        "tags": [
+          "Observation"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID ECG Resource",
+            "type": "string"
+          },
+          {
+            "name": "ComponentUpdate",
+            "in": "body",
+            "description": "Component request",
+            "schema": {
+              "$ref": "#/definitions/ComponentUpdate"
+            }
+          }
+        ],
+        "responses": [
+          {
+            "200": {
+              "description": "User is updated",
+              "schema": {
+                "$ref": "#/definitions/Observation"
+              }
+            },
+            "404": {
+              "description": "Not found"
+            }
+          }
+        ]
+      }
+    },
+    "/baseR4/Patient": {
+      "post": {
+        "tags": [
+          "Patient"
+        ],
+        "summary": "Cria um novo Patient Resource",
+        "description": "Cria um novo Patient Resource",
+        "parameters": [
+          {
+            "name": "Patient",
+            "in": "body",
+            "description": "Patient Resource Request",
+            "schema": {
+              "$ref": "#/definitions/Patient"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "Novo Patient Criado",
+            "schema": {
+              "$ref": "#/definitions/Patient"
+            }
+          }
+        }
+      }
+    },
+    "/baseR4/Patient/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "ID Patient Resource",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Busca Patient por ID",
+        "tags": [
+          "Patient"
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient",
+            "schema": {
+              "$ref": "#/definitions/Patient"
+            }
+          },
+          "404": {
+            "description": "Patient not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Observation": {
+      "required": [
+        "resourceType"
+      ],
+      "properties": {
+        "resourceType": {
+          "type": "string"
+        }
+      }
+    },
+    "ComponentUpdate": {
+      "properties": {
+        "component": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "valueSampledData": {
                 "type": "object",
                 "properties": {
-                    "valueSampledData": {
-                        "type": "object",
-                        "properties": {
-                            "origin": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "period": {
-                        "type": "number"
-                    },
-                    "factor": {
-                        "type": "number"
-                    },
-                    "lowerLimit": {
-                        "type": "number"
-                    },
-                    "upperLimit": {
-                        "type": "number"
-                    },
-                    "dimensions": {
-                        "type": "number"
-                    },
-                    "data": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "Patient": {
-            "required": [
-                "resourceType"
-            ],
-            "properties": {
-                "resourceType": {
+                  "origin": {
                     "type": "string"
+                  }
                 }
+              },
+              "period": {
+                "type": "number"
+              },
+              "factor": {
+                "type": "number"
+              },
+              "lowerLimit": {
+                "type": "number"
+              },
+              "upperLimit": {
+                "type": "number"
+              },
+              "dimensions": {
+                "type": "number"
+              },
+              "data": {
+                "type": "string"
+              }
             }
+          }
         }
+      }
+    },
+    "Patient": {
+      "required": [
+        "resourceType"
+      ],
+      "properties": {
+        "resourceType": {
+          "type": "string"
+        }
+      }
     }
+  }
 }
