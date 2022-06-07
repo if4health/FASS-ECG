@@ -17,8 +17,15 @@ class ObservationController {
     }
 
     async getObservationById(req, res) {
-       const result = await ObservationService.getObservationById(req.params.id);
-       return res.json(result);
+        const result = await ObservationService.getObservationById(req.params.id);
+        return res.json(result);
+    }
+
+    async updateObservation(req, res) {
+        const observation = req.body;
+        const id = req.params.id;
+        const result = await ObservationService.updateObservation(observation, id);
+        res.json(result);
     }
 
 }

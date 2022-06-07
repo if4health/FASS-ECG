@@ -37,9 +37,9 @@ class ObservationService {
                 return "Observation not found";
             }
 
-            if(observation.component === undefined){
+            if (observation.component === undefined) {
                 observation.component = [...component];
-            }else{
+            } else {
                 observation.component = [...observation.component, ...component];
             }
 
@@ -65,6 +65,45 @@ class ObservationService {
         } catch (error) {
             console.log(error);
             return error;
+        }
+    }
+
+    async updateObservation(observation, id) {
+        try {
+
+            const toVerify = await ObservationSchema.findById(id).exec();
+
+            if (toVerify == null) {
+                return "Observation not found";
+            }
+
+            if (observation.component === undefined) {
+                return await this.update(id, observation);
+
+            } else {
+
+                if(toVerify.component === undefined){
+                    return await this.update(id, observation);
+                }else{
+                    const component = [...toVerify.component];
+                    observation.component = [...observation.component, ...component];
+                    return await this.update(id, observation);
+                }
+            }
+
+        } catch (error) {
+            console.log(error)
+            return error;
+        }
+
+    }
+
+    async update(id, observation) {
+        const updated = await ObservationSchema.findByIdAndUpdate({_id: id}, observation).exec();
+        if (updated) {
+            return "Observation Atualizado";
+        } else {
+            return "Não atualizado";
         }
     }
 }
