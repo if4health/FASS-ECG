@@ -1,4 +1,5 @@
 const PatientSchema = require("../model/patient/Patient");
+const ObservationSchema = require("../model/observation/Observation");
 
 class PatientService {
 
@@ -22,7 +23,32 @@ class PatientService {
         }
     }
 
-    async deleteById() {}
+    async update(id, patient) {
+        try {
+            const updated = await PatientSchema.findByIdAndUpdate({_id: id}, patient).exec();
+            console.log(updated);
+            if (updated) {
+                return "Patient Atualizado";
+            } else {
+                return "Não atualizado";
+            }
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+
+    }
+
+    async delete(id) {
+        try {
+            const deleted = await PatientSchema.findByIdAndDelete(id).exec();
+            return deleted;
+        } catch (error) {
+            console.log(error);
+            return error;
+        }
+
+    }
 }
 
 module.exports = new PatientService();

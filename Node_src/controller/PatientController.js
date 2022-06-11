@@ -15,6 +15,22 @@ class PatientController {
             res.json(result);
     }
 
+    async deletePatient(req, res) {
+        const id = req.params.id;
+        const result = await PatientService.delete(id);
+        if (result == null)
+            res.status(404).send('Patient not found');
+        else
+            res.json(result);
+    }
+
+    async updateObservation(req, res) {
+       const id = req.params.id;
+       const patient = req.body;
+       const result = await PatientService.update(id, patient);
+       res.json(result);
+    }
+
 }
 
 module.exports = new PatientController();
