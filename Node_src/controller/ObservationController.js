@@ -28,6 +28,12 @@ class ObservationController {
         res.json(result);
     }
 
+    async deleteObservation(req, res) {
+        const id = req.params.id;
+        const result = await  ObservationService.delete(id);
+        console.log(result);
+        res.json(result);
+    }
 }
 
 module.exports = new ObservationController();

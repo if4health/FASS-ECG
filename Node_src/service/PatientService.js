@@ -21,6 +21,8 @@ class PatientService {
             return error;
         }
     }
+
+    async deleteById() {}
 }
 
 module.exports = new PatientService();

@@ -82,9 +82,9 @@ class ObservationService {
 
             } else {
 
-                if(toVerify.component === undefined){
+                if (toVerify.component === undefined) {
                     return await this.update(id, observation);
-                }else{
+                } else {
                     const component = [...toVerify.component];
                     observation.component = [...observation.component, ...component];
                     return await this.update(id, observation);
@@ -104,6 +104,15 @@ class ObservationService {
             return "Observation Atualizado";
         } else {
             return "Não atualizado";
+        }
+    }
+
+    async delete(id) {
+        const deleted = await ObservationSchema.findByIdAndDelete(id).exec();
+        if(deleted) {
+            return "Deletado com sucesso";
+        }else{
+            return `${id} Não encontrado`;
         }
     }
 }
