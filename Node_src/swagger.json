@@ -226,6 +226,61 @@
             "description": "Patient not found"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Patient"
+        ],
+        "summary": "Atualiza Patient Resource",
+        "description": "Atualiza Patient Resource",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID Patient Resource",
+            "type": "string"
+          },
+          {
+            "name": "Patient",
+            "in": "body",
+            "description": "Patient Resource Request",
+            "schema": {
+              "$ref": "#/definitions/Patient"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Novo Patient Criado",
+            "schema": {
+              "$ref": "#/definitions/Patient"
+            }
+          },
+          "404": {
+            "description": "Patient not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deleta Patient por ID",
+        "tags": [
+          "Patient"
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Patient not found"
+          }
+        }
       }
     }
   },

@@ -21,7 +21,7 @@ class PatientController {
         if (result == null)
             res.status(404).send('Patient not found');
         else
-            res.json(result);
+            res.json("Patient deleted");
     }
 
     async updateObservation(req, res) {
