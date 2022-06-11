@@ -9,15 +9,11 @@ class ObservationService {
         if (patientReference) {
             const isValidPatient = await this.isValidPatient(patientReference);
             if (!isValidPatient) {
-                return "Patient not found";
+                throw new Error("Patient not found");
             }
         }
-        try {
-            const result = await ObservationSchema.create(observation);
-            return result;
-        } catch (error) {
-            return error;
-        }
+        const result = await ObservationSchema.create(observation);
+        return result;
     }
 
     async isValidPatient(patientReference) {
@@ -56,16 +52,8 @@ class ObservationService {
     }
 
     async getObservationById(id) {
-        try {
-            const result = await ObservationSchema.findById(id).exec();
-            if (result == null) {
-                return "Observation not found";
-            }
-            return result;
-        } catch (error) {
-            console.log(error);
-            return error;
-        }
+        const result = await ObservationSchema.findById(id).exec();
+        return result;
     }
 
     async updateObservation(observation, id) {
@@ -109,9 +97,9 @@ class ObservationService {
 
     async delete(id) {
         const deleted = await ObservationSchema.findByIdAndDelete(id).exec();
-        if(deleted) {
+        if (deleted) {
             return "Deletado com sucesso";
-        }else{
+        } else {
             return `Observation not found`;
         }
     }

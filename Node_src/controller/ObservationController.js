@@ -5,8 +5,16 @@ const ObservationService = require('../service/ObservationService');
 class ObservationController {
 
     async createObeservation(req, res) {
-        const result = await ObservationService.createObeservation(req.body);
-        return res.status(201).json(result);
+        try {
+            const result = await ObservationService.createObeservation(req.body);
+            return res.status(201).json(result);
+        } catch (e) {
+            if (e.message == "Patient not found")
+                res.status(404).json("Patient not found")
+            else
+                res.status(500).json(e)
+        }
+
     }
 
     async patchComponent(req, res) {
@@ -17,8 +25,17 @@ class ObservationController {
     }
 
     async getObservationById(req, res) {
-        const result = await ObservationService.getObservationById(req.params.id);
-        return res.json(result);
+        try {
+            const result = await ObservationService.getObservationById(req.params.id);
+            if (result === null) {
+                res.status(404).json("Observation not found");
+            } else {
+                res.json(result);
+            }
+        } catch (e) {
+            res.status(500).json(e);
+        }
+
     }
 
     async updateObservation(req, res) {
@@ -30,7 +47,7 @@ class ObservationController {
 
     async deleteObservation(req, res) {
         const id = req.params.id;
-        const result = await  ObservationService.delete(id);
+        const result = await ObservationService.delete(id);
         console.log(result);
         res.json(result);
     }
