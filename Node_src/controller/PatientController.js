@@ -37,7 +37,7 @@ class PatientController {
        }
     }
 
-    async updateObservation(req, res) {
+    async updatePatient(req, res) {
         const id = req.params.id;
         const patient = req.body;
         try {
@@ -45,7 +45,7 @@ class PatientController {
             if (result == null)
                 res.status(404).send('Patient not found');
             else
-                res.json("Patient updated");
+                res.json("Patient Atualizado");
         }catch (e) {
             res.status(500).json(e);
         }

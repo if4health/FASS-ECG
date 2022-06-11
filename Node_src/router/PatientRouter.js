@@ -7,6 +7,6 @@ router.get("/baseR4/Patient/:id", PatientController.getPatientById)
 
 router.delete("/baseR4/Patient/:id", PatientController.deletePatient)
 
-router.put("/baseR4/Patient/:id", PatientController.updateObservation)
+router.put("/baseR4/Patient/:id", PatientController.updatePatient)
 
 module.exports = router

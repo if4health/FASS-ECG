@@ -27,27 +27,25 @@ class ObservationService {
     }
 
     async patchComponent(component, id) {
-        try {
-            const observation = await ObservationSchema.findById(id).exec();
-            if (observation == null) {
-                return "Observation not found";
-            }
-
-            if (observation.component === undefined) {
-                observation.component = [...component];
-            } else {
-                observation.component = [...observation.component, ...component];
-            }
-
-            const updated = await ObservationSchema.updateOne({_id: id}, observation)
-            if (updated.nModified == 1) {
-                return observation;
-            } else
-                return "Não atualizado";
-        } catch (error) {
-            console.log(error)
-            return error;
+        const observation = await ObservationSchema.findById(id).exec();
+        if (observation == null) {
+            throw new Error("Observation not found");
         }
+
+        if (observation.component === undefined) {
+            observation.component = [...component];
+        } else {
+            observation.component = [...observation.component, ...component];
+        }
+
+        const updated = await ObservationSchema.updateOne({_id: id}, observation).exec();
+
+        if (updated.nModified == 1) {
+            return observation;
+        } else{
+            throw new Error("Erro ao fazer patch de component em observation");
+        }
+
 
     }
 
@@ -57,51 +55,40 @@ class ObservationService {
     }
 
     async updateObservation(observation, id) {
-        try {
 
-            const toVerify = await ObservationSchema.findById(id).exec();
+        const toVerify = await ObservationSchema.findById(id).exec();
 
-            if (toVerify == null) {
-                return "Observation not found";
-            }
-
-            if (observation.component === undefined) {
-                return await this.update(id, observation);
-
-            } else {
-
-                if (toVerify.component === undefined) {
-                    return await this.update(id, observation);
-                } else {
-                    const component = [...toVerify.component];
-                    observation.component = [...observation.component, ...component];
-                    return await this.update(id, observation);
-                }
-            }
-
-        } catch (error) {
-            console.log(error)
-            return error;
+        if (toVerify == null) {
+            throw new Error("Observation not found");
         }
 
+        if (observation.component === undefined) {
+            return await this.update(id, observation);
+
+        } else {
+
+            if (toVerify.component === undefined) {
+                return await this.update(id, observation);
+            } else {
+                const component = [...toVerify.component];
+                observation.component = [...observation.component, ...component];
+                return await this.update(id, observation);
+            }
+        }
     }
 
     async update(id, observation) {
         const updated = await ObservationSchema.findByIdAndUpdate({_id: id}, observation).exec();
         if (updated) {
-            return "Observation Atualizado";
+            return "Atualizado";
         } else {
-            return "Não atualizado";
+            throw new Error("Erro ao atualizar");
         }
     }
 
     async delete(id) {
         const deleted = await ObservationSchema.findByIdAndDelete(id).exec();
-        if (deleted) {
-            return "Deletado com sucesso";
-        } else {
-            return `Observation not found`;
-        }
+        return deleted;
     }
 }
 
