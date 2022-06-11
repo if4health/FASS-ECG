@@ -112,7 +112,7 @@ class ObservationService {
         if(deleted) {
             return "Deletado com sucesso";
         }else{
-            return `${id} Não encontrado`;
+            return `Observation not found`;
         }
     }
 }

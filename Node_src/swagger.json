@@ -105,19 +105,69 @@
             }
           }
         ],
-        "responses": [
+        "responses": {
+          "200": {
+            "description": "Observation is updated",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Observation"
+        ],
+        "summary": "Atualiza ECG Resource",
+        "description": "Atualiza ECG resource",
+        "parameters": [
           {
-            "200": {
-              "description": "User is updated",
-              "schema": {
-                "$ref": "#/definitions/Observation"
-              }
-            },
-            "404": {
-              "description": "Not found"
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID ECG Resource",
+            "type": "string"
+          },
+          {
+            "name": "Observation",
+            "in": "body",
+            "description": "ECG resource request",
+            "schema": {
+              "$ref": "#/definitions/Observation"
             }
           }
-        ]
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Novo ECG Resource Criado",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deleta ECG Resource por ID",
+        "tags": [
+          "Observation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Observation",
+            "schema": {
+              "type": "String"
+            }
+          },
+          "404": {
+            "description": "Observation not found"
+          }
+        }
       }
     },
     "/baseR4/Patient": {
