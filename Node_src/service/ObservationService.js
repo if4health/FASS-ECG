@@ -5,7 +5,7 @@ const PatientService = require("../service/PatientService");
 class ObservationService {
 
     async createObeservation(observation) {
-        let patientReference = observation.subject?.reference;
+        let patientReference = this.getReference(observation);
         if (patientReference) {
             const isValidPatient = await this.isValidPatient(patientReference);
             if (!isValidPatient) {
@@ -14,6 +14,16 @@ class ObservationService {
         }
         const result = await ObservationSchema.create(observation);
         return result;
+    }
+
+    getReference(observation) {
+        let subject = observation.subject;
+        if(subject) {
+            let reference = subject.reference;
+            if(reference)
+                return reference;
+        }
+        return undefined;
     }
 
     async isValidPatient(patientReference) {
