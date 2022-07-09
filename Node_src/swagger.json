@@ -97,11 +97,11 @@
             "type": "string"
           },
           {
-            "name": "ComponentUpdate",
+            "name": "Patch PatchRequest",
             "in": "body",
             "description": "Component request",
             "schema": {
-              "$ref": "#/definitions/ComponentUpdate"
+              "$ref": "#/definitions/PatchRequest"
             }
           }
         ],
@@ -292,6 +292,45 @@
       "properties": {
         "resourceType": {
           "type": "string"
+        }
+      }
+    },
+    "PatchRequest": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PatchDocument"
+      }
+    },
+    "PatchDocument": {
+      "description": "A JSONPatch document as defined by RFC 6902",
+      "required": [
+        "op",
+        "path"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "description": "The operation to be performed",
+          "enum": [
+            "add",
+            "remove",
+            "replace",
+            "move",
+            "copy",
+            "test"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "description": "A JSON-Pointer"
+        },
+        "value": {
+          "type": "object",
+          "description": "The value to be used within the operations."
+        },
+        "from": {
+          "type": "string",
+          "description": "A string containing a JSON Pointer value."
         }
       }
     },
