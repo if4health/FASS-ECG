@@ -14,23 +14,29 @@ class ObservationController {
             else
                 res.status(500).json(e)
         }
-
     }
 
     async patchComponent(req, res) {
-        const component = req.body.component;
+        const body = req.body;
         const id = req.params.id;
-        try {
-            const result = await ObservationService.patchComponent(component, id);
-            res.json(result);
-        }catch (e) {
-            if (e.message == "Observation not found")
-                res.status(404).json("Observation not found")
-            else
-                res.status(500).json(e)
-        }
-
+        const result = await ObservationService.patchComponent(body, id);
+        res.status(200).json(result);
     }
+
+    // async patchComponent(req, res) {
+    //     const component = req.body.component;
+    //     const id = req.params.id;
+    //     try {
+    //         const result = await ObservationService.patchComponent(component, id);
+    //         res.json(result);
+    //     }catch (e) {
+    //         if (e.message == "Observation not found")
+    //             res.status(404).json("Observation not found")
+    //         else
+    //             res.status(500).json(e)
+    //     }
+    //
+    // }
 
     async getObservationById(req, res) {
         try {

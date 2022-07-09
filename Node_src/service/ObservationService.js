@@ -18,9 +18,9 @@ class ObservationService {
 
     getReference(observation) {
         let subject = observation.subject;
-        if(subject) {
+        if (subject) {
             let reference = subject.reference;
-            if(reference)
+            if (reference)
                 return reference;
         }
         return undefined;
@@ -30,34 +30,75 @@ class ObservationService {
         let patientId = patientReference.split("/")[1];
         if (patientId.match(/^[0-9a-fA-F]{24}$/)) {
             const patient = await PatientService.getPatientById(patientId);
-            return !(patient == null);
+            return patient != null;
         } else {
             return false;
         }
     }
 
-    async patchComponent(component, id) {
+    async patchComponent(array, id) {
         const observation = await ObservationSchema.findById(id).exec();
-        if (observation == null) {
-            throw new Error("Observation not found");
-        }
 
-        if (observation.component === undefined) {
-            observation.component = [...component];
-        } else {
-            observation.component = [...observation.component, ...component];
-        }
+        let sorted = this.sortPatchJson(array);
 
-        const updated = await ObservationSchema.updateOne({_id: id}, observation).exec();
+        let values = sorted.map((a, index) => {
+            let oldValue = observation.component[index].valueSampledData.data;
+            let patchValue = a.value;
+            if (oldValue === null || oldValue === undefined) {
+                return patchValue;
+            } else {
+                return oldValue.concat(" " + patchValue);
+            }
+        });
 
-        if (updated.nModified == 1) {
-            return observation;
-        } else{
-            throw new Error("Erro ao fazer patch de component em observation");
-        }
+        let newComponent = observation.component.map((c, index) => {
+            if (values[index] != undefined) {
+                c.valueSampledData.data = values[index];
+                return c;
+            } else {
+                return c.valueSampledData.data;
+            }
+        });
 
-
+        observation.component = newComponent;
+        return this.update(id, observation);
     }
+
+    sortPatchJson(array) {
+        return array.sort((a, b) => {
+            let posA = a.path.split("/")[2];
+            let posB = b.path.split("/")[2];
+            if (posA > posB) {
+                return 1;
+            }
+            if (posA < posB) {
+                return -1;
+            }
+            return 0;
+        });
+    }
+
+    // async patchComponent(component, id) {
+    //     const observation = await ObservationSchema.findById(id).exec();
+    //     if (observation == null) {
+    //         throw new Error("Observation not found");
+    //     }
+    //
+    //     if (observation.component === undefined) {
+    //         observation.component = [...component];
+    //     } else {
+    //         observation.component = [...observation.component, ...component];
+    //     }
+    //
+    //     const updated = await ObservationSchema.updateOne({_id: id}, observation).exec();
+    //
+    //     if (updated.nModified == 1) {
+    //         return observation;
+    //     } else{
+    //         throw new Error("Erro ao fazer patch de component em observation");
+    //     }
+    //
+    // }
 
     async getObservationById(id) {
         const result = await ObservationSchema.findById(id).exec();
@@ -65,26 +106,11 @@ class ObservationService {
     }
 
     async updateObservation(observation, id) {
-
         const toVerify = await ObservationSchema.findById(id).exec();
-
         if (toVerify == null) {
             throw new Error("Observation not found");
         }
-
-        if (observation.component === undefined) {
-            return await this.update(id, observation);
-
-        } else {
-
-            if (toVerify.component === undefined) {
-                return await this.update(id, observation);
-            } else {
-                const component = [...toVerify.component];
-                observation.component = [...observation.component, ...component];
-                return await this.update(id, observation);
-            }
-        }
+        return await this.update(id, observation);
     }
 
     async update(id, observation) {
