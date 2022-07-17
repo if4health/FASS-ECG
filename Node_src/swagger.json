@@ -32,7 +32,7 @@
           "Observation"
         ],
         "summary": "Cria ECG Resource",
-        "description": "Cira um novo ECG resource",
+        "description": "Cria um novo ECG resource",
         "parameters": [
           {
             "name": "Observation",
@@ -84,7 +84,7 @@
         }
       },
       "patch": {
-        "summary": "Atualiza campo Component de um ECG Resource",
+        "summary": "Recurso feito no padrão JSON Patch para atualização de amostras de ECG",
         "tags": [
           "Observation"
         ],
