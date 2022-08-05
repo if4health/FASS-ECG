@@ -2,6 +2,7 @@ const PatientSchema = require("../model/patient/Patient");
 const ObservationSchema = require("../model/observation/Observation");
 const PatientService = require("../service/PatientService");
 const uuid = require('uuid');
+var mongoose = require('mongoose');
 
 class ObservationService {
 
@@ -14,7 +15,10 @@ class ObservationService {
             }
         }
 
-        observation.id = uuid.v4();
+        let id = mongoose.Types.ObjectId();
+        observation.id = id;
+        observation._id = id;
+
         const result = await ObservationSchema.create(observation);
 
         return result;

@@ -14,7 +14,7 @@ const {schema} = require('../patient/Patient');
 
 const ObservationSchema = new Schema({
         id: {
-            type: String,
+            type: String
         },
         resourceType: {
             type: String,
@@ -167,11 +167,7 @@ const ObservationSchema = new Schema({
     },
     {
         versionKey: false
-    }).set('toJSON', {
-    transform: function (doc, ret, options) {
-        ret.id = ret._id;
-    }
-});
+    });
 
 module.exports = model('observation', ObservationSchema);
 
