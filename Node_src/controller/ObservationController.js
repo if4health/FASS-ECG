@@ -23,24 +23,23 @@ class ObservationController {
         res.status(200).json(result);
     }
 
-    // async patchComponent(req, res) {
-    //     const component = req.body.component;
-    //     const id = req.params.id;
-    //     try {
-    //         const result = await ObservationService.patchComponent(component, id);
-    //         res.json(result);
-    //     }catch (e) {
-    //         if (e.message == "Observation not found")
-    //             res.status(404).json("Observation not found")
-    //         else
-    //             res.status(500).json(e)
-    //     }
-    //
-    // }
-
     async getObservationById(req, res) {
         try {
             const result = await ObservationService.getObservationById(req.params.id);
+            if (result === null) {
+                res.status(404).json("Observation not found");
+            } else {
+                res.json(result);
+            }
+        } catch (e) {
+            res.status(500).json(e);
+        }
+
+    }
+
+    async getObservationByIdData(req, res) {
+        try {
+            const result = await ObservationService.getObservationByIdData(req.params.id);
             if (result === null) {
                 res.status(404).json("Observation not found");
             } else {

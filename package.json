@@ -9,7 +9,8 @@
     "express": "^4.17.1",
     "ip": "^1.1.5",
     "mongoose": "^5.13.14",
-    "mongoose-to-swagger": "^1.4.0"
+    "mongoose-to-swagger": "^1.4.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "formidable": "^1.2.2",

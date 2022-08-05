@@ -1,6 +1,7 @@
 const PatientSchema = require("../model/patient/Patient");
 const ObservationSchema = require("../model/observation/Observation");
 const PatientService = require("../service/PatientService");
+const uuid = require('uuid');
 
 class ObservationService {
 
@@ -12,7 +13,10 @@ class ObservationService {
                 throw new Error("Patient not found");
             }
         }
+
+        observation.id = uuid.v4();
         const result = await ObservationSchema.create(observation);
+
         return result;
     }
 
@@ -78,27 +82,12 @@ class ObservationService {
         });
     }
 
-    // async patchComponent(component, id) {
-    //     const observation = await ObservationSchema.findById(id).exec();
-    //     if (observation == null) {
-    //         throw new Error("Observation not found");
-    //     }
-    //
-    //     if (observation.component === undefined) {
-    //         observation.component = [...component];
-    //     } else {
-    //         observation.component = [...observation.component, ...component];
-    //     }
-    //
-    //     const updated = await ObservationSchema.updateOne({_id: id}, observation).exec();
-    //
-    //     if (updated.nModified == 1) {
-    //         return observation;
-    //     } else{
-    //         throw new Error("Erro ao fazer patch de component em observation");
-    //     }
-    //
-    // }
+    async getObservationByIdData(id) {
+        const result = await ObservationSchema.findById(id).exec();
+        //component/0/valueSampledData/data
+        //return result.component[2].valueSampledData.data.length;
+        return result;
+    }
 
     async getObservationById(id) {
         const result = await ObservationSchema.findById(id).exec();

@@ -26,8 +26,8 @@ app.use(allowCrossDomain);
 
 app.set('view engine', 'html')
 
-app.use(bp.json())
-  .use(bp.urlencoded({ extended: true }))
+app.use(bp.json({limit: '50mb', extended: true}))
+  .use(bp.urlencoded({limit: '50mb',extended: true }))
   .use(patientRouter)
   .use(observationRouter)
 
