@@ -46,6 +46,9 @@ class ObservationService {
 
     async patchComponent(array, id) {
         const observation = await ObservationSchema.findById(id).exec();
+        if(!observation) {
+            throw new Error('Observation not found');
+        }
 
         let sorted = this.sortPatchJson(array);
 

@@ -9,6 +9,7 @@ class ObservationController {
             const result = await ObservationService.createObeservation(req.body);
             return res.status(201).json(result);
         } catch (e) {
+            console.log(e);
             if (e.message == "Patient not found")
                 res.status(404).json("Patient not found")
             else
@@ -19,8 +20,14 @@ class ObservationController {
     async patchComponent(req, res) {
         const body = req.body;
         const id = req.params.id;
-        const result = await ObservationService.patchComponent(body, id);
-        res.status(200).json(result);
+        try {
+            const result = await ObservationService.patchComponent(body, id);
+            res.status(200).json(result);
+        } catch (e) {
+            if (e.message == "Observation not found")
+                res.status(404).json("Observation not found")
+            res.status(500).json(e);
+        }
     }
 
     async getObservationById(req, res) {
