@@ -291,7 +291,8 @@
       ],
       "properties": {
         "resourceType": {
-          "type": "string"
+          "type": "string",
+          "default": "Observation"
         }
       }
     },
@@ -378,7 +379,8 @@
       ],
       "properties": {
         "resourceType": {
-          "type": "string"
+          "type": "string",
+          "default": "Patient"
         }
       }
     }
