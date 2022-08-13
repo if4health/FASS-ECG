@@ -72,7 +72,7 @@ class ObservationService {
                 return oldValue.concat(" " + newValue);
             }
         });
-        
+
         observation.component.map((comp, index) => {
             const fileName = `data_${id}_${index}.txt`;
             const data = values[index];
@@ -83,7 +83,7 @@ class ObservationService {
         return this.update(id, observation);
     }
 
-    
+
 
     sortPatchJson(array) {
         return array.sort((a, b) => {
@@ -133,16 +133,18 @@ class ObservationService {
         return dataValues;
     }
 
-
-    // async getObservationById(id) {
-    //     const observation = await ObservationSchema.findById(id).exec();
-    //     return observation;
-    // }
-
     async updateObservation(observation, id) {
         const toVerify = await ObservationSchema.findById(id).exec();
         if (toVerify == null) {
             throw new Error("Observation not found");
+        }
+        if (observation.component) {
+            observation.component.map((comp, index) => {
+                const fileName = `data_${id}_${index}.txt`;
+                const data = comp.valueSampledData.data || "";
+                S3Service.upload(fileName, data);
+                comp.valueSampledData.data = fileName;
+            });
         }
         return await this.update(id, observation);
     }
