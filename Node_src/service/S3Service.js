@@ -15,7 +15,7 @@ const s3 = new S3({
 
 class S3Service {
 
-    async upload(fileName, data) {
+    upload(fileName, data) {
         var params = {
             Bucket: bucketName,
             Key: fileName,
@@ -23,6 +23,12 @@ class S3Service {
             ContentType: "application/plan-text"
         };
         return s3.upload(params).promise()
+    }
+
+
+    async downloadFromS3(attachmentId) {
+        const file = await s3.getObject({ Bucket: bucketName, Key: attachmentId }).promise()
+        return file.Body.toString('utf-8');
     }
 
 }

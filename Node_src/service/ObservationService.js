@@ -54,7 +54,7 @@ class ObservationService {
 
     async patchComponent(array, id) {
         const observation = await ObservationSchema.findById(id).exec();
-        if(!observation) {
+        if (!observation) {
             throw new Error('Observation not found');
         }
 
@@ -106,8 +106,36 @@ class ObservationService {
 
     async getObservationById(id) {
         const result = await ObservationSchema.findById(id).exec();
+        const sampleValues = await this.convertUploadsToData(result);
+        result.component.forEach((comp, index) => {
+            comp.valueSampledData.data = sampleValues[index];
+        });
         return result;
     }
+
+    async convertUploadsToData(result) {
+        let dataValues = [];
+        if (result) {
+            const promisses = result.component.map((comp) => {
+                const data = comp.valueSampledData.data;
+                return S3Service.downloadFromS3(data)
+            });
+
+            await Promise.all(promisses).then((values) => {
+                values.map(value => {
+                    dataValues.push(value);
+                })
+            })
+        }
+
+        return dataValues;
+    }
+
+
+    // async getObservationById(id) {
+    //     const result = await ObservationSchema.findById(id).exec();
+    //     return result;
+    // }
 
     async updateObservation(observation, id) {
         const toVerify = await ObservationSchema.findById(id).exec();
@@ -118,7 +146,7 @@ class ObservationService {
     }
 
     async update(id, observation) {
-        const updated = await ObservationSchema.findByIdAndUpdate({_id: id}, observation).exec();
+        const updated = await ObservationSchema.findByIdAndUpdate({ _id: id }, observation).exec();
         if (updated) {
             return "Atualizado";
         } else {
