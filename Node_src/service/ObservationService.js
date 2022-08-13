@@ -52,36 +52,38 @@ class ObservationService {
         }
     }
 
+
     async patchComponent(array, id) {
         const observation = await ObservationSchema.findById(id).exec();
         if (!observation) {
             throw new Error('Observation not found');
         }
 
+        const samplesValues = await this.convertUploadsToData(observation);
+
         let sorted = this.sortPatchJson(array);
 
-        let values = sorted.map((a, index) => {
-            let oldValue = observation.component[index].valueSampledData.data;
-            let patchValue = a.value;
+        let values = sorted.map((patchValue, index) => {
+            let oldValue = samplesValues[index];
+            let newValue = patchValue.value;
             if (oldValue === null || oldValue === undefined) {
                 return patchValue;
             } else {
-                return oldValue.concat(" " + patchValue);
+                return oldValue.concat(" " + newValue);
             }
         });
-
-        let newComponent = observation.component.map((c, index) => {
-            if (values[index] != undefined) {
-                c.valueSampledData.data = values[index];
-                return c;
-            } else {
-                return c.valueSampledData.data;
-            }
+        
+        observation.component.map((comp, index) => {
+            const fileName = `data_${id}_${index}.txt`;
+            const data = values[index];
+            S3Service.upload(fileName, data);
+            comp.valueSampledData.data = fileName;
         });
 
-        observation.component = newComponent;
         return this.update(id, observation);
     }
+
+    
 
     sortPatchJson(array) {
         return array.sort((a, b) => {
@@ -113,10 +115,10 @@ class ObservationService {
         return result;
     }
 
-    async convertUploadsToData(result) {
+    async convertUploadsToData(observation) {
         let dataValues = [];
-        if (result) {
-            const promisses = result.component.map((comp) => {
+        if (observation) {
+            const promisses = observation.component.map((comp) => {
                 const data = comp.valueSampledData.data;
                 return S3Service.downloadFromS3(data)
             });
@@ -133,8 +135,8 @@ class ObservationService {
 
 
     // async getObservationById(id) {
-    //     const result = await ObservationSchema.findById(id).exec();
-    //     return result;
+    //     const observation = await ObservationSchema.findById(id).exec();
+    //     return observation;
     // }
 
     async updateObservation(observation, id) {
