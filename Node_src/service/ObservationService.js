@@ -1,6 +1,6 @@
-const PatientSchema = require("../model/patient/Patient");
 const ObservationSchema = require("../model/observation/Observation");
 const PatientService = require("../service/PatientService");
+const S3Service = require('../service/S3Service');
 const uuid = require('uuid');
 var mongoose = require('mongoose');
 
@@ -19,10 +19,18 @@ class ObservationService {
         observation.id = id;
         observation._id = id;
 
+        observation.component.map((comp, index) => {
+            const fileName = `data_${id}_${index}.txt`;
+            const data = comp.valueSampledData.data || "";
+            S3Service.upload(fileName, data);
+            comp.valueSampledData.data = fileName;
+        });
+
         const result = await ObservationSchema.create(observation);
 
-        return result;
+        return observation;
     }
+
 
     getReference(observation) {
         let subject = observation.subject;
