@@ -33,13 +33,11 @@ class ObservationController {
     async getObservationById(req, res) {
         try {
             const result = await ObservationService.getObservationById(req.params.id);
-            if (result === null) {
-                res.status(404).json("Observation not found");
-            } else {
-                res.json(result);
-            }
+            res.json(result);
         } catch (e) {
             console.log(e);
+            if (e.message.includes('Observation not foud!'))
+                res.status(404).json('Observation not foud!');
             res.status(500).json(e);
         }
 
@@ -47,13 +45,10 @@ class ObservationController {
 
     async getObservationByIdData(req, res) {
         try {
-            const result = await ObservationService.getObservationByIdData(req.params.id);
-            if (result === null) {
-                res.status(404).json("Observation not found");
-            } else {
-                res.json(result);
-            }
+            const result = await ObservationService.getObservationByIdData(req.params.id, req.params.range);
+            res.json(result);
         } catch (e) {
+            console.log(e);
             res.status(500).json(e);
         }
 
@@ -69,7 +64,7 @@ class ObservationController {
             if (e.message == "Observation not found") {
                 res.status(404).json("Observation not found");
             } else {
-                res.status(500).json({message: e.message});
+                res.status(500).json({ message: e.message });
             }
         }
     }

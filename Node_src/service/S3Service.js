@@ -27,9 +27,16 @@ class S3Service {
 
 
     async downloadFromS3(attachmentId) {
-        const file = await s3.getObject({ Bucket: bucketName, Key: attachmentId }).promise()
+        const file = await s3.getObject({ Bucket: bucketName, Key: attachmentId}).promise();
         return file.Body.toString('utf-8');
     }
+
+    async downloadWithRange(attachmentId, range) {
+        const file = await s3.getObject({ Bucket: bucketName, Key: attachmentId, Range: `bytes=${range}` }).promise();
+        return file.Body.toString('utf-8');
+    }
+
+
 
 }
 

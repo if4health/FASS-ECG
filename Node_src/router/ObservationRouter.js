@@ -6,7 +6,7 @@ router.post("/baseR4/Observation", ObservationController.createObeservation)
 
 router.get("/baseR4/Observation/:id", ObservationController.getObservationById)
 
-router.get("/baseR4/Observation/data/:id", ObservationController.getObservationByIdData)
+router.get("/baseR4/Observation/data/:id/:range", ObservationController.getObservationByIdData)
 
 router.patch("/baseR4/Observation/:id", ObservationController.patchComponent);
 

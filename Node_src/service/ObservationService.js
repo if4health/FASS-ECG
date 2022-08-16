@@ -99,15 +99,44 @@ class ObservationService {
         });
     }
 
-    async getObservationByIdData(id) {
-        const result = await ObservationSchema.findById(id).exec();
-        //component/0/valueSampledData/data
-        //return result.component[2].valueSampledData.data.length;
-        return result;
+    async getObservationByIdData(id, range) {
+        console.log(range);
+        const observation = await ObservationSchema.findById(id).exec();
+        let results = [];
+        let codes = [];
+        let promisses = observation.component.map(comp => {
+            const data = comp.valueSampledData.data;
+            codes.push({
+                'code': comp.code.coding[0].display,
+                'period': comp.valueSampledData.period
+            });
+            return S3Service.downloadWithRange(data, range);
+        });
+
+        await Promise.all(promisses).then((values) => {
+            values.map((value, index) => {
+                value = value.trim();
+                const valuesSplited = value.split(' ');
+                valuesSplited.pop();
+                let finalValue = ""
+                valuesSplited.forEach(v => {
+                    finalValue =  finalValue + v + " ";
+                });
+
+                let json = {
+                    ...codes[index],
+                    'data': finalValue.trim()
+                }
+                results.push(json);
+            })
+        })
+
+        return results;
     }
 
     async getObservationById(id) {
         const result = await ObservationSchema.findById(id).exec();
+        if (!result) throw new Error("Observation not foud!");
         const sampleValues = await this.convertUploadsToData(result);
         result.component.forEach((comp, index) => {
             comp.valueSampledData.data = sampleValues[index];
