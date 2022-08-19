@@ -2,7 +2,7 @@ const ObservationSchema = require("../model/observation/Observation");
 const PatientService = require("../service/PatientService");
 const S3Service = require('../service/S3Service');
 const uuid = require('uuid');
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 class ObservationService {
 
@@ -53,14 +53,10 @@ class ObservationService {
     }
 
 
+
     async patchComponent(array, id) {
-        const observation = await ObservationSchema.findById(id).exec();
-        if (!observation) {
-            throw new Error('Observation not found');
-        }
-
+        const observation = await this.findById(id);
         const samplesValues = await this.convertUploadsToData(observation);
-
         let sorted = this.sortPatchJson(array);
 
         let values = sorted.map((patchValue, index) => {
@@ -83,6 +79,18 @@ class ObservationService {
         return this.update(id, observation);
     }
 
+    async findById(id) {
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            const observation = await ObservationSchema.findById(id).exec();
+            if (!observation) {
+                throw new HttpError('Observation not found!', 404);
+            }
+            return observation;
+        } else {
+            throw new HttpError('Observation not found!', 404);
+        }
+    }
+
 
 
     sortPatchJson(array) {
@@ -100,8 +108,7 @@ class ObservationService {
     }
 
     async getObservationByIdData(id, range) {
-        console.log(range);
-        const observation = await ObservationSchema.findById(id).exec();
+        const observation = await this.findById(id);
         let results = [];
         let codes = [];
         let promisses = observation.component.map(comp => {
@@ -120,7 +127,7 @@ class ObservationService {
                 valuesSplited.pop();
                 let finalValue = ""
                 valuesSplited.forEach(v => {
-                    finalValue =  finalValue + v + " ";
+                    finalValue = finalValue + v + " ";
                 });
 
                 let json = {
@@ -135,8 +142,10 @@ class ObservationService {
     }
 
     async getObservationById(id) {
-        const result = await ObservationSchema.findById(id).exec();
-        if (!result) throw new Error("Observation not foud!");
+        const result = await this.findById(id);
+        console.log(result);
+        // const result = await ObservationSchema.findById(id).exec();
+        // if (!result) throw new Error("Observation not foud!");
         const sampleValues = await this.convertUploadsToData(result);
         result.component.forEach((comp, index) => {
             comp.valueSampledData.data = sampleValues[index];
@@ -190,6 +199,13 @@ class ObservationService {
     async delete(id) {
         const deleted = await ObservationSchema.findByIdAndDelete(id).exec();
         return deleted;
+    }
+}
+
+class HttpError extends Error {
+    constructor(message, statusCode) {
+        super(message);
+        this.statusCode = statusCode;
     }
 }
 

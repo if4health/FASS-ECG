@@ -35,10 +35,7 @@ class ObservationController {
             const result = await ObservationService.getObservationById(req.params.id);
             res.json(result);
         } catch (e) {
-            console.log(e);
-            if (e.message.includes('Observation not foud!'))
-                res.status(404).json('Observation not foud!');
-            res.status(500).json(e);
+            res.status(e.statusCode || 500).json(e.message);
         }
 
     }
