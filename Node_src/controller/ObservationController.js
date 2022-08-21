@@ -40,15 +40,29 @@ class ObservationController {
 
     }
 
-    async getObservationByIdData(req, res) {
+    async getObservationByStartAndEnd(req, res) {
         try {
-            const result = await ObservationService.getObservationByIdData(req.params.id, req.params.range);
+            const id = req.params.id;
+            const start = req.params.start;
+            const end = req.params.end;
+            const result = await ObservationService.getObservationByStartAndEnd(id, start, end);
             res.json(result);
         } catch (e) {
             console.log(e);
             res.status(500).json(e);
         }
+    }
 
+    async getObservationByMin(req, res) {
+        try {
+            const id = req.params.id;
+            const min = req.params.min;
+            const result = await ObservationService.getObservationByIdAndMin(id, min);
+            res.json(result);
+        } catch (e) {
+            console.log(e);
+            res.status(500).json(e);
+        }
     }
 
     async updateObservation(req, res) {

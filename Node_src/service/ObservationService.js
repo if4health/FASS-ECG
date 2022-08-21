@@ -1,4 +1,5 @@
 const ObservationSchema = require("../model/observation/Observation");
+const ChunckSchema = require('../model/chunck/Chunck');
 const PatientService = require("../service/PatientService");
 const S3Service = require('../service/S3Service');
 const uuid = require('uuid');
@@ -18,19 +19,48 @@ class ObservationService {
         let id = mongoose.Types.ObjectId();
         observation.id = id;
         observation._id = id;
-
-        observation.component.map((comp, index) => {
-            const fileName = `data_${id}_${index}.txt`;
-            const data = comp.valueSampledData.data || "";
-            S3Service.upload(fileName, data);
-            comp.valueSampledData.data = fileName;
-        });
-
+        if (observation.component) {
+            observation.component.map(async (comp, index) => {
+                const reference = `data_${id}_${index}`;
+                const data = comp.valueSampledData.data;
+                comp.valueSampledData.data = reference;
+                const period = comp.valueSampledData.period;
+                const maxSamples = Math.round(60 / (period / 1000));
+                await this.chuckData(maxSamples, data, reference, 0);
+            });
+        }
         const result = await ObservationSchema.create(observation);
-
         return observation;
     }
 
+    async chuckData(maxSamples, data, reference, position) {
+        const values = data.split(' ');
+        let soma = 0;
+        let chunckData = "";
+        for (let i of values) {
+            chunckData = chunckData + i + " ";
+            soma++;
+            if (soma == maxSamples) {
+                const chunck = {
+                    reference: reference,
+                    position: position,
+                    data: chunckData
+                }
+                await ChunckSchema.create(chunck);
+                chunckData = "";
+                soma = 0;
+                position++;
+            }
+        }
+        if (chunckData != "") {
+            const chunck = {
+                reference: reference,
+                position: position++,
+                data: chunckData
+            }
+            await ChunckSchema.create(chunck);
+        }
+    }
 
     getReference(observation) {
         let subject = observation.subject;
@@ -55,28 +85,87 @@ class ObservationService {
 
 
     async patchComponent(array, id) {
+        //busco observation
         const observation = await this.findById(id);
-        const samplesValues = await this.convertUploadsToData(observation);
-        let sorted = this.sortPatchJson(array);
 
-        let values = sorted.map((patchValue, index) => {
-            let oldValue = samplesValues[index];
-            let newValue = patchValue.value;
-            if (oldValue === null || oldValue === undefined) {
-                return patchValue;
-            } else {
-                return oldValue.concat(" " + newValue);
-            }
-        });
+        //busco as ultimas posições
+        const lastChunks = [];
+        const references = observation.component.map(comp => comp.valueSampledData.data);
+        const promisses = references.map(async (ref) => await ChunckSchema.find({ 'reference': ref }).exec());
+        await Promise.all(promisses)
+            .then((values) => {
+                values.map((value, index) => {
+                    lastChunks.push(value.pop());
+                })
+            });
+
+        //busco e ordeno valores do patch
+        let sorted = this.sortPatchJson(array);
+        let values = sorted.map((patchValue) => patchValue.value);
 
         observation.component.map((comp, index) => {
-            const fileName = `data_${id}_${index}.txt`;
-            const data = values[index];
-            S3Service.upload(fileName, data);
-            comp.valueSampledData.data = fileName;
+            const maxSamples = this.getMaxSamples(comp.valueSampledData.period);
+            const lastChunck = lastChunks[index];
+            const lastChunckSize = Math.round(lastChunck.data.split(' ').length);
+            const reference = comp.valueSampledData.data;
+            if (lastChunckSize >= maxSamples) {
+                console.log("Caiu no if");
+                //Fazer fluxo de chunck com uma posicao acima da ultima se 30 proximo é 31
+                this.chuckData(maxSamples, values[index], reference, lastChunck.position++);
+            } else {
+                console.log("Caiu no else");
+                //Juntar data ate o 1 min e fazer update na ultima posição;
+                const data = lastChunck.data + values[index];
+                const samples = data.split(' ');
+                let chuncks = [];
+                let soma = 0;
+                let position = lastChunck.position;
+                let chunckData = "";
+                for (let i in samples) {
+                    chunckData = chunckData + i + " ";
+                    soma++;
+                    if (soma == maxSamples) {
+                        chuncks.push({
+                            reference: reference,
+                            position: position,
+                            data: chunckData
+                        });
+                        position++;
+                        soma = 0;
+                        chunckData = "";
+                    }
+                }
+                if (chunckData != "") {
+                    console.log("entra no if de menos d eum minuto")
+                    chuncks.push({
+                        reference: reference,
+                        position: position++,
+                        data: chunckData
+                    });
+                }
+                console.log(chuncks);
+                chuncks.forEach((chunck, index) => {
+                    if (index == 0) {
+                        console.log("Fez update")
+                        ChunckSchema.findByIdAndUpdate({
+                            id: lastChunck.id,
+                            position: lastChunck.position
+                        }, chunck);
+                    } else {
+                        console.log("Criou")
+                        ChunckSchema.create(chunck);
+                    }
+                })
+            }
         });
+        await this.update(id, observation);
+        return observation;
+    }
 
-        return this.update(id, observation);
+    getMaxSamples(period) {
+        const periodInSeconds = period / 1000;
+        const maxSamples = Math.round(60 / periodInSeconds);
+        return maxSamples;
     }
 
     async findById(id) {
@@ -90,8 +179,6 @@ class ObservationService {
             throw new HttpError('Observation not found!', 404);
         }
     }
-
-
 
     sortPatchJson(array) {
         return array.sort((a, b) => {
@@ -107,68 +194,96 @@ class ObservationService {
         });
     }
 
-    async getObservationByIdData(id, range) {
+    async getObservationByStartAndEnd(id, start, end) {
         const observation = await this.findById(id);
-        let results = [];
-        let codes = [];
-        let promisses = observation.component.map(comp => {
-            const data = comp.valueSampledData.data;
-            codes.push({
+        const preResponses = [];
+
+        const promisses = observation.component.map((comp, index) => {
+            const ref = comp.valueSampledData.data;
+            preResponses.push({
                 'code': comp.code.coding[0].display,
                 'period': comp.valueSampledData.period
             });
-            return S3Service.downloadWithRange(data, range);
-        });
+            return ChunckSchema.find({ reference: ref });
+        })
+
+        let responses = [];
 
         await Promise.all(promisses).then((values) => {
             values.map((value, index) => {
-                value = value.trim();
-                const valuesSplited = value.split(' ');
-                valuesSplited.pop();
-                let finalValue = ""
-                valuesSplited.forEach(v => {
-                    finalValue = finalValue + v + " ";
-                });
+                let data = "";
+                value.forEach(v => {
+                    if (v.position >= start - 1 && v.position <= end - 1) {
+                        data = data + v.data + ' ';
+                    }
 
-                let json = {
-                    ...codes[index],
-                    'data': finalValue.trim()
-                }
-                results.push(json);
+                })
+                responses.push({
+                    ...preResponses[index],
+                    data: data
+                });
             })
+        });
+
+        return responses;
+    }
+
+    async getObservationByIdAndMin(id, min) {
+        const observation = await this.findById(id);
+        const preResponses = [];
+        const promisses = observation.component.map((comp, index) => {
+            const ref = comp.valueSampledData.data;
+            preResponses.push({
+                'code': comp.code.coding[0].display,
+                'period': comp.valueSampledData.period
+            });
+            return ChunckSchema.findOne({ reference: ref, position: min - 1 }).exec();
         })
 
-        return results;
+        let responses = [];
+
+        await Promise.all(promisses).then((values) => {
+            values.map((value, index) => {
+                responses.push({
+                    ...preResponses[index],
+                    data: value.data
+                });
+            })
+        });
+
+        return responses;
     }
 
     async getObservationById(id) {
         const result = await this.findById(id);
         console.log(result);
-        // const result = await ObservationSchema.findById(id).exec();
-        // if (!result) throw new Error("Observation not foud!");
-        const sampleValues = await this.convertUploadsToData(result);
+        const sampleValues = await this.convertChunckToData(result);
         result.component.forEach((comp, index) => {
             comp.valueSampledData.data = sampleValues[index];
         });
         return result;
     }
 
-    async convertUploadsToData(observation) {
-        let dataValues = [];
+    async convertChunckToData(observation) {
+        let samples = [];
         if (observation) {
             const promisses = observation.component.map((comp) => {
-                const data = comp.valueSampledData.data;
-                return S3Service.downloadFromS3(data)
+                const ref = comp.valueSampledData.data;
+                return ChunckSchema.find({ reference: ref })
             });
 
             await Promise.all(promisses).then((values) => {
-                values.map(value => {
-                    dataValues.push(value);
+                values.map((value, index) => {
+                    let data = "";
+                    value.forEach(v => {
+                        data = data + v.data + ' ';
+                    })
+                    samples.push(data);
                 })
             })
         }
 
-        return dataValues;
+        return samples;
     }
 
     async updateObservation(observation, id) {
