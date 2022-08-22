@@ -6,9 +6,9 @@ router.post("/baseR4/Observation", ObservationController.createObeservation);
 
 router.get("/baseR4/Observation/:id", ObservationController.getObservationById);
 
-router.get("/baseR4/Observation/data/:id/:start/:end", ObservationController.getObservationByStartAndEnd);
+router.get("/baseR4/Observation/:id/data/:start/:end", ObservationController.getObservationByStartAndEnd);
 
-router.get("/baseR4/Observation/data/:id/:min", ObservationController.getObservationByMin);
+router.get("/baseR4/Observation/:id/data/:min", ObservationController.getObservationByMin);
 
 router.patch("/baseR4/Observation/:id", ObservationController.patchComponent);
 

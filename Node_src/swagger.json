@@ -56,6 +56,83 @@
         }
       }
     },
+    "/baseR4/Observation/{id}/data/{start}/{end}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "ID ECG Resource",
+          "type": "string"
+        },
+        {
+          "name": "start",
+          "in": "path",
+          "required": true,
+          "description": "Minuto inicial",
+          "type": "string"
+        },
+        {
+          "name": "end",
+          "in": "path",
+          "required": true,
+          "description": "Minuto final",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Busca ECG data de um Observation por ID e Intervalo de minutos",
+        "tags": [
+          "Observation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Observation",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          },
+          "404": {
+            "description": "Observation not found"
+          }
+        }
+      }
+    },
+    "/baseR4/Observation/{id}/data/{minute}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "ID ECG Resource",
+          "type": "string"
+        },
+        {
+          "name": "minute",
+          "in": "path",
+          "required": true,
+          "description": "Busca data por minuto",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Busca ECG data de um Observation por ID e Minuto",
+        "tags": [
+          "Observation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Observation",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          },
+          "404": {
+            "description": "Observation not found"
+          }
+        }
+      }
+    },
     "/baseR4/Observation/{id}": {
       "parameters": [
         {

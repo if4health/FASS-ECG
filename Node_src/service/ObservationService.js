@@ -25,7 +25,6 @@ class ObservationService {
                 const data = comp.valueSampledData.data;
                 comp.valueSampledData.data = reference;
                 const period = comp.valueSampledData.period;
-                // const maxSamples = Math.round(60 / (period / 1000));
                 const maxSamples = this.getMaxSamples(period);
                 await this.chuckData(maxSamples, data, reference, 0);
             });
@@ -205,8 +204,6 @@ class ObservationService {
                 'code': comp.code.coding[0].display,
                 'period': comp.valueSampledData.period
             });
-            console.log(start);
-            console.log(end);
             return ChunckSchema.find({ reference: ref, position: { '$gte': start - 1, '$lte': end - 1 } })
         })
 
@@ -256,7 +253,6 @@ class ObservationService {
 
     async getObservationById(id) {
         const result = await this.findById(id);
-        console.log(result);
         const sampleValues = await this.convertChunckToData(result);
         result.component.forEach((comp, index) => {
             comp.valueSampledData.data = sampleValues[index];
