@@ -44,7 +44,7 @@ class ObservationService {
                 const chunck = {
                     reference: reference,
                     position: position,
-                    data: chunckData
+                    data: chunckData.trim()
                 }
                 await ChunckSchema.create(chunck);
                 chunckData = "";
@@ -56,7 +56,7 @@ class ObservationService {
             const chunck = {
                 reference: reference,
                 position: position++,
-                data: chunckData
+                data: chunckData.trim()
             }
             await ChunckSchema.create(chunck);
         }
@@ -91,14 +91,17 @@ class ObservationService {
         //busco as ultimas posições
         const lastChunks = [];
         const references = observation.component.map(comp => comp.valueSampledData.data);
-        const promisses = references.map(async (ref) => await ChunckSchema.find({ 'reference': ref }).exec());
+        // const promisses = references.map(async (ref) => await ChunckSchema.find({ 'reference': ref }).exec());
+
+        const promisses = references.map(async (ref) =>
+            await ChunckSchema.find({ 'reference': ref }).sort({ position: -1 }).limit(1).exec());
+
         await Promise.all(promisses)
             .then((values) => {
                 values.map((value, index) => {
-                    lastChunks.push(value.pop());
+                    lastChunks.push(value[0]);
                 })
             });
-
         //busco e ordeno valores do patch
         let sorted = this.sortPatchJson(array);
         let values = sorted.map((patchValue) => patchValue.value);
@@ -109,26 +112,27 @@ class ObservationService {
             const lastChunckSize = Math.round(lastChunck.data.split(' ').length);
             const reference = comp.valueSampledData.data;
             if (lastChunckSize >= maxSamples) {
-                console.log("Caiu no if");
                 //Fazer fluxo de chunck com uma posicao acima da ultima se 30 proximo é 31
                 this.chuckData(maxSamples, values[index], reference, lastChunck.position++);
             } else {
-                console.log("Caiu no else");
+
                 //Juntar data ate o 1 min e fazer update na ultima posição;
-                const data = lastChunck.data + values[index];
+                const data = lastChunck.data.concat(' ' + values[index]);
                 const samples = data.split(' ');
+
                 let chuncks = [];
                 let soma = 0;
                 let position = lastChunck.position;
                 let chunckData = "";
-                for (let i in samples) {
+
+                for (let i of samples) {
                     chunckData = chunckData + i + " ";
                     soma++;
                     if (soma == maxSamples) {
                         chuncks.push({
                             reference: reference,
                             position: position,
-                            data: chunckData
+                            data: chunckData.trim()
                         });
                         position++;
                         soma = 0;
@@ -136,24 +140,21 @@ class ObservationService {
                     }
                 }
                 if (chunckData != "") {
-                    console.log("entra no if de menos d eum minuto")
                     chuncks.push({
                         reference: reference,
                         position: position++,
-                        data: chunckData
+                        data: chunckData.trim()
                     });
                 }
-                console.log(chuncks);
-                chuncks.forEach((chunck, index) => {
+                chuncks.forEach(async (chunck, index) => {
                     if (index == 0) {
-                        console.log("Fez update")
-                        ChunckSchema.findByIdAndUpdate({
-                            id: lastChunck.id,
+                        await ChunckSchema.findByIdAndUpdate({
+                            _id: lastChunck._id,
+                            reference: reference,
                             position: lastChunck.position
                         }, chunck);
                     } else {
-                        console.log("Criou")
-                        ChunckSchema.create(chunck);
+                        await ChunckSchema.create(chunck);
                     }
                 })
             }
@@ -204,7 +205,9 @@ class ObservationService {
                 'code': comp.code.coding[0].display,
                 'period': comp.valueSampledData.period
             });
-            return ChunckSchema.find({ reference: ref });
+            console.log(start);
+            console.log(end);
+            return ChunckSchema.find({ reference: ref, position: { '$gte': start - 1, '$lte': end - 1 } })
         })
 
         let responses = [];
@@ -213,10 +216,7 @@ class ObservationService {
             values.map((value, index) => {
                 let data = "";
                 value.forEach(v => {
-                    if (v.position >= start - 1 && v.position <= end - 1) {
-                        data = data + v.data + ' ';
-                    }
-
+                    data = data + v.data + ' ';
                 })
                 responses.push({
                     ...preResponses[index],
