@@ -25,7 +25,8 @@ class ObservationService {
                 const data = comp.valueSampledData.data;
                 comp.valueSampledData.data = reference;
                 const period = comp.valueSampledData.period;
-                const maxSamples = Math.round(60 / (period / 1000));
+                // const maxSamples = Math.round(60 / (period / 1000));
+                const maxSamples = this.getMaxSamples(period);
                 await this.chuckData(maxSamples, data, reference, 0);
             });
         }
@@ -91,7 +92,6 @@ class ObservationService {
         //busco as ultimas posições
         const lastChunks = [];
         const references = observation.component.map(comp => comp.valueSampledData.data);
-        // const promisses = references.map(async (ref) => await ChunckSchema.find({ 'reference': ref }).exec());
 
         const promisses = references.map(async (ref) =>
             await ChunckSchema.find({ 'reference': ref }).sort({ position: -1 }).limit(1).exec());
