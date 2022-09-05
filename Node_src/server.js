@@ -31,7 +31,7 @@ app.use(bp.json({limit: '50mb', extended: true}))
   .use(patientRouter)
   .use(observationRouter)
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.SERVER_PORT || 3000;
 
 app.listen(PORT, () => {
   console.log("server started: " + PORT)

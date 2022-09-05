@@ -69,12 +69,19 @@ class ObservationService {
             }
         });
 
-        observation.component.map((comp, index) => {
+        let promisses = observation.component.map((comp, index) => {
             const fileName = `data_${id}_${index}.txt`;
             const data = values[index];
-            S3Service.upload(fileName, data);
             comp.valueSampledData.data = fileName;
+            return S3Service.upload(fileName, data);
         });
+
+        await Promise.all(promisses).then((values) => {
+            values.map((value, index) => {
+                console.log("depois da promisse");
+                console.log(value);
+            })
+        })
 
         return this.update(id, observation);
     }
