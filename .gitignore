@@ -8,3 +8,4 @@ package-lock.json
 cantAcces.txt
 python_src/testes.py
 __pycache__
+yarn.lock
