@@ -2,7 +2,7 @@
 
 ![](./img/img.png)
 
-Aqui voce encontra o codigo fonte do servidor (back-end) do projeto _CloudECG_. _CloudECG_ é um projeto de pesquisa com apoio do [IFSul](www.ifsul.edu.br)
+Aqui você encontra o codigo fonte do servidor (back-end) do projeto _CloudECG_. _CloudECG_ é um projeto de pesquisa com apoio do [IFSul](www.ifsul.edu.br)
  
 Esta aplicação está em formato API RESTful e dentro do padrão FHIR. Podendo receber requisições a partir de qualquer dispositivo com capacidade de fazer requisições HTTP. E tem a capacidade de se comunicar com aplicações no padrão FHIR. Também tem a capacidade de receber ECG's de longa duração por meio de métodos de streaming data processing.
 
@@ -72,5 +72,4 @@ python test.py
 ### Tutorial de como importar Collections no Postman: https://www.youtube.com/watch?v=M-qHvBhULes&t=1s&ab_channel=Testfully
 
 # Deploy
-Video explicando como fazer o deploy na AWS:
-https://www.youtube.com/watch?v=H6TqW3LY234&ab_channel=AndreLuisDelMestreMartins
+### Video explicando como fazer o deploy na AWS: https://www.youtube.com/watch?v=H6TqW3LY234&ab_channel=AndreLuisDelMestreMartins
