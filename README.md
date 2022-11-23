@@ -67,6 +67,8 @@ python test.py
 
 ### Segue um vídeo demonstrando a utilização do CloudECG via Postman: https://youtu.be/BdqqyPXorls
 
+### Link para download do Postman: https://www.postman.com/downloads/
+
 ### Link das Collections do CloudECG para importação e uso: https://drive.google.com/file/d/1N2BkFbLuGMT7wzyKXHrXpb2AKlIB3LCV/view?usp=sharing
 
 ### Tutorial de como importar Collections no Postman: https://www.youtube.com/watch?v=M-qHvBhULes&t=1s&ab_channel=Testfully
