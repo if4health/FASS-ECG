@@ -1,77 +1,74 @@
-# Projeto de CloudECG
+# FASS-ECG: FHIR API to Stream and Store long-term ECGs
+  
+![A general structure for streaming an ECG on the internet containing multiple and diverse IoT devices, cloud APIs, and user applications.](./img/fass-ecg-overview.png)
 
-![](./img/img.png)
-
-Aqui você encontra o codigo fonte do servidor (back-end) do projeto _CloudECG_. _CloudECG_ é um projeto de pesquisa com apoio do [IFSul](www.ifsul.edu.br)
- 
-Esta aplicação está em formato API RESTful e dentro do padrão FHIR. Podendo receber requisições a partir de qualquer dispositivo com capacidade de fazer requisições HTTP. E tem a capacidade de se comunicar com aplicações no padrão FHIR. Também tem a capacidade de receber ECG's de longa duração por meio de métodos de streaming data processing.
-
-O CloudECG tem o objetivo de receber requisições dos disponsitivos móveis desenvolvidos no projeto [If4health](https://if4health.netlify.app/), grupo de pesquisa o qual está inserido.
+This repo contains FASS-ECG, a FHIR Cloud API to Enable Streaming and Storage of Continuous 12-leads ECGs. Figure shows a general structure of an IoT-based ECG monitoring system containing diverse components labeled IoT devices, cloud APIs, and user-interface applications. FASS-ECG is a cloud API to enable the IoT-based ECG monitoring and FASS-ECG paper has been published in [IEEE CBMS 2023](https://2023.cbms-conference.org/) conference.
 
 
-## Requisitos 
-- NodeJS e npm [https://docs.npmjs.com/downloading-and-installing-node-js-and-npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+## Requirements
+- NodeJS [https://nodejs.org/en/](https://nodejs.org/en/)
 - MongoDB [https://www.mongodb.com/](https://www.mongodb.com/)
-- Python 3.x [https://www.python.org/downloads/](https://www.python.org/downloads/)
-- Biblioteca Python biosppy [https://biosppy.readthedocs.io/en/stable/](https://biosppy.readthedocs.io/en/stable/)
+- FASS-ECG API (this repo)
 
 
-## Instalação
-### Full Local
-#### Node
-1. Faca download deste repositório
+## Instalation
+1. Download this repo
 ```sh
-git clone https://github.com/if4health/CloudECG
+git clone https://github.com/if4health/FASS-ECG .
 ```
+2. Set the environment variables up:
 
-2. Entre no diretório
-```sh
-cd CloudECG
-```
+| Name | Comment |
+|------|-----------|
+| `SERVER_PORT` | Server port |
+| `DB_URI` | MongoDB connection string |
+| `DB_NAME` | Database name |
+| `AWS_BUCKET_NAME` | only config this when use `aws-s3` branch |
+| `AWS_BUCKET_REGION` | only config this when use `aws-s3` branch |
+| `AWS_ACCESS_KEY` | only config this when use `aws-s3` branch |
+| `AWS_SECRET_KEY` | only config this when use `aws-s3` branch |
 
-3. Instale os pacotes de dependências do projeto 
+
+3. Install NodeJS dependencies 
 ```sh
+cd FASS-ECG/
 npm install
 ```
-4. Crie um arquivo chamado .env e sete as environments 
+
+
+## Utilization
+Apos o set-up do ambiente escolhido, voce precisa destes comandos para executar
+No diretorio `h2cloud` execute:
 ```sh
-SERVER_PORT=
-DB_URI=
-DB_NAME=
+npm dev
 ```
-5. Rode a aplicação 
+Visualize o servidor rodando no navegador:
 ```sh
-npm start
+http://localhost:${SERVER_PORT}/
 ```
+## Endpoints
+![FASS-ECG Swagger.](./img/fass-ecg-swagger.png)
 
-Você pode acessar os recursos da aplicações <strong>localmente</strong> por meio do Swagger-ui: http://localhost:3000/api-docs/#/ 
-
-#### Python
-1. Instale o BiosSPy e outras bibliotecas nescessarias por meio do pip 
+FASS-ECG provides Swagger as the API Documentation available in the following URL:
 ```sh
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-python get-pip.py
-pip install biosspy
-pip install certifi
-pip install request
-pip install pymongo[srv]
-pip install python-dotenv
+http://localhost:${SERVER_PORT}/api-docs/
 ```
-2. Verifique a instalacao do BiosSPy
-```sh
-cd python_src
-python test.py
-```
+1. FASS-ECG defines an ECG writing flow to enable distributed long-term ECG writing by a sequence of expected HTTP requests. The endpoints available to write ECGs in FASS-ECG are as follows:
 
-## Utilizacao
+![ECG writing flow estblished in FASS-ECG.](./img/fass-ecg-writing-flow.jpg)
 
-### Segue um vídeo demonstrando a utilização do CloudECG via Postman: https://youtu.be/BdqqyPXorls
+| Endpoint               | Method | Description                                         |
+|--------------------|--------|---------------------------------------------------------|
+| `/Observation` | POST | Create a new FHIR Observation resource of ECG record and begin the ECG streaming; |
+| `/Observation/{id}` | PATCH | Attach new ECG samples as JSON Patch document in the ECG record previously created in the POST request. |
+| `/Observation/{id}` | PUT | Finish the ECG streaming by updating `status` key to `"final"`. |
 
-### Link para download do Postman: https://www.postman.com/downloads/
+2. Three endpoints are available to read ECGs from FASS-ECG where two of them return ECGs snippets in a time period as follows:
+| Endpoint               | Method | Description                                         |
+|--------------------|--------|---------------------------------------------------------|
+| `/Observation/{id}` | GET | read a complete ECG record as a FHIR Observation resourc |
+| `/Observation/{id}/data/{minute}` | GET | read one minute of an ECG record as a FHIR Observation resource. The first `{minute}` is set as 0; |
+| `/Observation/{id}/data/{start}/{end}` | GET | read an ECG record as a FHIR Observation resource in a time interval between `{start}` and `{end}` minutes |
 
-### Link das Collections do CloudECG para importação e uso: https://drive.google.com/file/d/1N2BkFbLuGMT7wzyKXHrXpb2AKlIB3LCV/view?usp=sharing
-
-### Tutorial de como importar Collections no Postman: https://www.youtube.com/watch?v=M-qHvBhULes&t=1s&ab_channel=Testfully
-
-# Deploy
-### Video explicando como fazer o deploy na AWS: https://www.youtube.com/watch?v=H6TqW3LY234&ab_channel=AndreLuisDelMestreMartins
+## Deployment
+### Tutorial Video explaining how to deploy `main` branch of FASS-ECG in AWS (language: portuguese): https://www.youtube.com/watch?v=H6TqW3LY234&ab_channel=AndreLuisDelMestreMartins
