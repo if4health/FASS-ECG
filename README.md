@@ -72,4 +72,4 @@ http://localhost:${SERVER_PORT}/api-docs/
 | `/Observation/{id}/data/{start}/{end}` | GET | read an ECG record as a FHIR Observation resource in a time interval between `{start}` and `{end}` minutes |
 
 ## Deployment
-Tutorial Video explaining how to deploy `main` branch of FASS-ECG in AWS (language: portuguese): https://www.youtube.com/watch?v=H6TqW3LY234&ab_channel=AndreLuisDelMestreMartins
+[Tutorial Video](https://www.youtube.com/watch?v=H6TqW3LY234&ab_channel=AndreLuisDelMestreMartins) explaining how to deploy `main` branch of FASS-ECG in AWS (language: portuguese).
